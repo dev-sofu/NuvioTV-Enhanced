@@ -3,9 +3,11 @@ package com.nuvio.tv.core.connect
 import android.util.Log
 import fi.iki.elonen.NanoHTTPD
 import fi.iki.elonen.NanoWSD
+import fi.iki.elonen.NanoHTTPD.IHTTPSession
+import fi.iki.elonen.NanoHTTPD.Response
 import fi.iki.elonen.NanoWSD.WebSocket
 import fi.iki.elonen.NanoWSD.WebSocketFrame
-import fi.iki.elonen.NanoWSD.CloseCode
+import fi.iki.elonen.NanoWSD.WebSocketFrame.CloseCode
 import com.nuvio.connect.protocol.NuvioConnectProtocol
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.put
