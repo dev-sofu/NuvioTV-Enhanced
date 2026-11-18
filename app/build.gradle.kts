@@ -575,6 +575,7 @@ dependencies {
     add("fullImplementation", libs.crypto.js)
     // QR code + local server for addon management
     implementation(libs.nanohttpd)
+    implementation("org.nanohttpd:nanohttpd-websocket:2.3.1")
     implementation(libs.zxing.core)
 
 
