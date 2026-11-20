@@ -8,6 +8,7 @@ import android.os.StrictMode
 import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import com.nuvio.tv.core.image.CustomPosterFallbackInterceptor
+import com.nuvio.tv.core.connect.NuvioConnectReceiver
 import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
 import coil3.gif.GifDecoder
@@ -30,6 +31,10 @@ import com.nuvio.tv.core.network.imageNetworkFetcherFactory
 import com.nuvio.tv.data.local.ImagePerformancePreferences
 import com.nuvio.tv.data.local.SentrySettingsDataStore
 import com.nuvio.tv.data.mediaserver.ServerUserStateProjection
+import com.nuvio.tv.data.mediaserver.plex.PlexArtworkInterceptor
+import com.nuvio.tv.data.mediaserver.plex.PlexArtworkSigner
+import com.nuvio.tv.data.mediaserver.silo.SiloArtworkInterceptor
+import com.nuvio.tv.data.mediaserver.silo.SiloArtworkRefresher
 import com.nuvio.tv.data.simkl.SimklAnimeIdPreferenceHolder
 import com.nuvio.tv.ui.screens.settings.MemoryBudget
 import dagger.hilt.android.HiltAndroidApp
@@ -50,6 +55,8 @@ class NuvioApplication : Application(), SingletonImageLoader.Factory {
     @Inject lateinit var imagePerformancePreferences: ImagePerformancePreferences
     @Inject lateinit var simklAnimeIdPreferenceHolder: SimklAnimeIdPreferenceHolder
     @Inject lateinit var serverUserStateProjection: ServerUserStateProjection
+    @Inject lateinit var plexArtworkSigner: PlexArtworkSigner
+    @Inject lateinit var siloArtworkRefresher: SiloArtworkRefresher
 
     companion object {
         /**
@@ -90,6 +97,7 @@ class NuvioApplication : Application(), SingletonImageLoader.Factory {
         PluginRuntimeHooks.onApplicationCreate(this)
         androidTvChannelSyncService.start()
         serverUserStateProjection.start()
+        NuvioConnectReceiver.start()
         // Load locale synchronously so it's available before Activity.attachBaseContext.
         // SharedPreferences reads are fast (cached in memory after first access).
         val tag = getSharedPreferences("app_locale", Context.MODE_PRIVATE)
@@ -111,6 +119,9 @@ class NuvioApplication : Application(), SingletonImageLoader.Factory {
                 .connectTimeout(4, TimeUnit.SECONDS)
                 .readTimeout(5, TimeUnit.SECONDS)
                 .callTimeout(8, TimeUnit.SECONDS)
+                .addInterceptor(PlexArtworkInterceptor { if (::plexArtworkSigner.isInitialized) plexArtworkSigner else null })
+                .addNetworkInterceptor(PlexArtworkInterceptor.Token { if (::plexArtworkSigner.isInitialized) plexArtworkSigner else null })
+                .addInterceptor(SiloArtworkInterceptor({ if (::siloArtworkRefresher.isInitialized) siloArtworkRefresher else null }))
                 .addInterceptor { chain ->
                     try {
                         chain.proceed(chain.request())
