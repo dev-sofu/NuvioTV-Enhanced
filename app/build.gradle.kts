@@ -227,6 +227,8 @@ android {
 
     buildTypes {
         debug {
+            // Install the test build alongside the production Nuvio app.
+            applicationIdSuffix = ".debug"
             signingConfig = signingConfigs.getByName("release")
             isDebuggable = parseBooleanProperty(providers.gradleProperty("debuggable").orNull)
             isMinifyEnabled = false
@@ -374,7 +376,7 @@ android {
 androidComponents {
     onVariants(selector().withBuildType("debug")) { variant ->
         val isPlaystore = variant.productFlavors.any { it.second == "playstore" }
-        variant.applicationId.set(if (isPlaystore) "com.nuvio.appdebug" else "com.nuviodebug.com")
+        variant.applicationId.set(if (isPlaystore) "com.nuvio.appdebug" else "com.nuvio.tv.debug")
     }
     // Only the full flavor ships the in-app updater.
     onVariants(selector().withFlavor("distribution" to "full")) { variant ->
@@ -616,6 +618,7 @@ dependencies {
     add("fullImplementation", libs.crypto.js)
     // QR code + local server for addon management
     implementation(libs.nanohttpd)
+    implementation("org.nanohttpd:nanohttpd-websocket:2.3.1")
     implementation(libs.zxing.core)
 
 

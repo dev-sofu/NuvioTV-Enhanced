@@ -11,6 +11,7 @@ import coil3.network.NetworkFetcher
 import coil3.network.okhttp.asNetworkClient
 import com.nuvio.tv.core.image.CollectionCoverNetworkClient
 import com.nuvio.tv.core.image.CustomPosterFallbackInterceptor
+import com.nuvio.tv.core.connect.NuvioConnectReceiver
 import com.nuvio.tv.core.image.HardwareBitmapSettingInterceptor
 import coil3.disk.DiskCache
 import coil3.memory.MemoryCache
@@ -101,6 +102,7 @@ class NuvioApplication : Application(), SingletonImageLoader.Factory {
         PluginRuntimeHooks.onApplicationCreate(this)
         androidTvChannelSyncService.start()
         serverUserStateProjection.start()
+        NuvioConnectReceiver.start()
         // Load locale synchronously so it's available before Activity.attachBaseContext.
         // SharedPreferences reads are fast (cached in memory after first access).
         val tag = getSharedPreferences("app_locale", Context.MODE_PRIVATE)
